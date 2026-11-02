@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Для кисули — с любовью</title>
+  <style>
+    :root {
+      --rose: #e75480;
+      --rose-soft: #f8c8d8;
+      --rose-deep: #c2185b;
+      --gold: #e0a87e;
+      --ink: #4a3b41;
+      --paper: #fff9f5;
+      --shadow: 0 12px 40px rgba(199, 34, 91, 0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: linear-gradient(160deg, #2b1e28 0%, #3d2933 40%, #4a2c3a 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: var(--ink);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Звёздное небо на фоне */
+    .stars {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
+    .star {
+      position: absolute;
+      width: 2px; height: 2px;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle 3s infinite ease-in-out;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.5); }
+    }
+
+    /* Летящие сердечки */
+    .hearts-bg {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 1;
+    }
+    .heart-bg {
+      position: absolute;
+      bottom: -60px;
+      font-size: 24px;
+      animation: rise 12s infinite ease-in;
+      opacity: 0.6;
+    }
+    @keyframes rise {
+      0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.7; }
+      50%  { transform: translateY(-50vh) translateX(20px) rotate(15deg); }
+      90%  { opacity: 0.5; }
+      100% { transform: translateY(-110vh) translateX(-15px) rotate(-10deg); opacity: 0; }
+    }
+
+    /* Открытка */
+    .card-wrapper {
+      position: relative; z-index: 2;
+      max-width: 540px; width: 100%;
+      padding: 12px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--rose-deep), var(--rose));
+      box-shadow: var(--shadow);
+      animation: card-enter 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      opacity: 0;
+    }
+    @keyframes card-enter {
+      from { opacity: 0; transform: translateY(40px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card {
+      background: var(--paper);
+      border-radius: 10px;
+      padding: 40px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Виньетка по краям открытки */
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(ellipse at center, transparent 60%, rgba(199,34,91,0.06) 100%);
+      pointer-events: none;
+    }
+
+    /* Декоративная рамка */
+    .frame {
+      position: absolute; top: 14px; left: 14px; right: 14px; bottom: 14px;
+      border: 2px solid rgba(231, 84, 128, 0.25);
+      border-radius: 6px;
+      pointer-events: none;
+    }
+    .frame::before, .frame::after {
+      content: '❦';
+      position: absolute;
+      color: rgba(231, 84, 128, 0.3);
+      font-size: 1.1rem;
+    }
+    .frame::before { top: -10px; left: 50%; transform: translateX(-50%); }
+    .frame::after  { bottom: -10px; left: 50%; transform: translateX(-50%); }
+
+    h1 {
+      font-size: 2.4rem;
+      color: var(--rose-deep);
+      margin-bottom: 0.3rem;
+      position: relative;
+      animation: glow-pulse 3s infinite ease-in-out;
+    }
+    @keyframes glow-pulse {
+      0%, 100% { text-shadow: 0 0 8px rgba(231,84,128,0.2); }
+      50%      { text-shadow: 0 0 20px rgba(231,84,128,0.4); }
+    }
+
+    .subtitle {
+      font-style: italic;
+      font-size: 1.05rem;
+      color: #8a6a70;
+      margin-bottom: 1.8rem;
+      opacity: 0;
+      animation: fadeIn 1.5s forwards 0.6s;
+    }
+
+    /* Послания — карусель */
+    .messages-section { margin: 1.5rem 0; }
+    .messages-title {
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 1rem;
+    }
+    .message-carousel {
+      position: relative;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .message-text {
+      font-size: 1.05rem;
+      line-height: 1.5;
+      color: var(--ink);
+      text-align: center;
+      max-width: 380px;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .message-text.fade-out {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    .message-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 0.8rem;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(231,84,128,0.3);
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .dot.active { background: var(--rose); }
+
+    /* Таймер */
+    .timer-section { margin: 1.8rem 0; }
+    .timer-title {
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 0.8rem;
+    }
+    .timer-box {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .time-block {
+      background: white;
+      border: 1px solid rgba(231,84,128,0.2);
+      border-radius: 12px;
+      padding: 12px 14px;
+      min-width: 72px;
+      box-shadow: 0 4px 12px rgba(199,34,91,0.08);
+      position: relative;
+    }
+    .time-block::after {
+      content: '';
+      position: absolute; top: 50%; right: -8px;
+      width: 4px; height: 4px;
+      background: rgba(231,84,128,0.3);
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+    .time-block:last-child::after { display: none; }
+    .time-num {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--rose-deep);
+      display: block;
+      line-height: 1;
+      transition: transform 0.2s;
+    }
+    .time-num.tick {
+      animation: tick-pop 0.3s ease;
+    }
+    @keyframes tick-pop {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    .time-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #a08289;
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* Тайные послания */
+    .secret-section {
+      margin: 1.8rem 0;
+      padding-top: 1.5rem;
+      border-top: 1px dashed rgba(231,84,128,0.25);
+    }
+    .secret-title {
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 0.8rem;
+    }
+    .secret-btn {
+      background: transparent;
+      border: 2px solid var(--rose);
+      color: var(--rose);
+      padding: 0.6rem 1.5rem;
+      border-radius: 30px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin: 0.3rem;
+    }
+    .secret-btn:hover {
+      background: var(--rose);
+      color: white;
+      transform: scale(1.04);
+      box-shadow: 0 4px 14px rgba(231,84,128,0.3);
+    }
+    .secret-btn.unlocked {
+      background: var(--rose-soft);
+      border-color: var(--rose-soft);
+      color: var(--rose-deep);
+      cursor: default;
+    }
+    .secret-content {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.5s ease, opacity 0.5s ease;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--ink);
+      padding: 0 10px;
+      margin-top: 0;
+    }
+    .secret-content.show {
+      max-height: 200px;
+      opacity: 1;
+      margin-top: 0.8rem;
+    }
+
+    /* Финальная кнопка */
+    .love-btn {
+      background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+      color: white;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(231,84,128,0.35);
+      transition: transform 0.2s, box-shadow 0.3s;
+      margin-top: 0.5rem;
+    }
+    .love-btn:hover {
+      transform: scale(1.06);
+      box-shadow: 0 8px 24px rgba(231,84,128,0.5);
+    }
+
+    /* Модальное окно */
+    .modal-overlay {
+      display: none;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(43, 30, 40, 0.8);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.4s;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: var(--paper);
+      border-radius: 14px;
+      padding: 36px;
+      max-width: 340px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: card-enter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .modal h2 { color: var(--rose-deep); font-size: 1.4rem; margin-bottom: 0.8rem; }
+    .modal p  { color: var(--ink); line-height: 1.5; margin-bottom: 1.2rem; }
+    .modal-close {
+      background: var(--rose);
+      color: white;
+      border: none;
+      padding: 0.5rem 1.4rem;
+      border-radius: 30px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    @keyframes fadeIn { to { opacity: 1; } }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Мобильная адаптация */
+    @media (max-width: 480px) {
+      .card { padding: 28px 20px; }
+      h1 { font-size: 1.9rem; }
+      .time-block { min-width: 60px; padding: 10px; }
+      .time-num { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Звёздное небо -->
+  <div class="stars" id="stars"></div>
+
+  <!-- Летящие сердечки -->
+  <div class="hearts-bg" id="heartsBg"></div>
+
+  <!-- Открытка -->
+  <div class="card-wrapper">
+    <div class="card">
+      <div class="frame"></div>
+
+      <h1>Для Светули</h1>
+      <p class="subtitle">Каждая секунда без тебя — это секунда, которую я хочу прожить снова, но уже рядом с тобой.</p>
+
+      <!-- Послания (карусель) -->
+      <div class="messages-section">
+        <div class="messages-title">Послания для тебя</div>
+        <div class="message-carousel">
+          <div class="message-text" id="msgText">Ты — мой самый тёплый свет в холодные дни.</div>
+        </div>
+        <div class="message-dots" id="msgDots"></div>
+      </div>
+
+      <!-- Таймер -->
+      <div class="timer-section">
+        <div class="timer-title">До нашей встречи осталось</div>
+        <div class="timer-box" id="timerBox">
+          <div class="time-block">
+            <span class="time-num" id="days">00</span>
+            <span class="time-label">дней</span>
+          </div>
+          <div class="time-block">
+            <span class="time-num" id="hours">00</span>
+            <span class="time-label">часов</span>
+          </div>
+          <div class="time-block">
+            <span class="time-num" id="minutes">00</span>
+            <span class="time-label">минут</span>
+          </div>
+          <div class="time-block">
+            <span class="time-num" id="seconds">00</span>
+            <span class="time-label">секунд</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Тайные послания -->
+      <div class="secret-section">
+        <div class="secret-title">Тайные послания</div>
+        <button class="secret-btn" onclick="revealSecret(0)">Секрет №1</button>
+        <button class="secret-btn" onclick="revealSecret(1)">Секрет №2</button>
+        <button class="secret-btn" onclick="revealSecret(2)">Секрет №3</button>
+        <div class="secret-content" id="secretBox"></div>
+      </div>
+
+      <!-- Финальная кнопка -->
+      <button class="love-btn" onclick="showModal()">Я тебя обожаю❤ (Тык)</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно -->
+  <div class="modal-overlay" id="modal" onclick="closeModal(event)">
+    <div class="modal">
+      <h2>Света, ты — моё всё</h2>
+      <p>Этот сайт — маленькая попытка сказать большое, важное. Спасибо, что ты есть. Жду нашей встречи больше всего на свете.</p>
+      <button class="modal-close" onclick="closeModal(event, true)">Закрыть</button>
+    </div>
+  </div>
+
+  <script>
+    // ====== НАСТРОЙКИ ======
+
+    // Дата и время встречи (формат: YYYY-MM-DDTHH:mm:ss)
+    const targetDate = new Date('2026-11-21T12:00:00').getTime();
+
+    // Послания (карусель)
+    const messages = [
+      "Ты — мой самый тёплый свет в холодные дни.",
+      "Считаю минуты до встречи — это единственное, что помогает ждать.",
+      "Ты делаешь обычные дни особенными, даже когда далеко.",
+      "Рядом с тобой время летит, а без тебя — еле-еле. Поскорее бы.",
+      "Если бы ожидание имело вкус, оно было бы сладким — потому что в конце тебя.",
+      "Ты — та, о ком я думаю, когда закрываю глаза."
+    ];
+
+    // Тайные послания
+    const secrets = [
+      "Иногда я улыбаюсь просто потому, что вспомнил о тебе. И никто не знает почему.",
+      "Ты — мой самый тёплый и тихий повод улыбаться. Даже если мы не рядом, я чувствую, что ты близко.",
+      "Знаешь, что самое странное? Чем дольше жду встречи, тем больше понимаю, что ты уже где-то рядом — в каждой мелочи моего дня."
+    ];
+
+    // =========================
+
+    // --- Звёзды ---
+    (function createStars() {
+      const c = document.getElementById('stars');
+      for (let i = 0; i < 70; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.left = Math.random() * 100 + '%';
+        s.style.top  = Math.random() * 100 + '%';
+        s.style.animationDelay = (Math.random() * 3) + 's';
+        s.style.width  = (Math.random() * 2 + 1) + 'px';
+        s.style.height = s.style.width;
+        c.appendChild(s);
+      }
+    })();
+
+    // --- Летящие сердечки ---
+    (function createHearts() {
+      const c = document.getElementById('heartsBg');
+      const symbols = ['❤', '♥', '❣', '♡'];
+      for (let i = 0; i < 20; i++) {
+        const h = document.createElement('div');
+        h.className = 'heart-bg';
+        h.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        h.style.left = Math.random() * 100 + 'vw';
+        h.style.fontSize = (Math.random() * 14 + 12) + 'px';
+        h.style.color = `hsl(${Math.random() * 20 + 340}, 70%, ${Math.random() * 20 + 65}%)`;
+        h.style.animationDuration = (Math.random() * 6 + 10) + 's';
+        h.style.animationDelay = (Math.random() * 12) + 's';
+        c.appendChild(h);
+      }
+    })();
+
+    // --- Таймер ---
+    let prevSec = -1;
+    function updateTimer() {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance <= 0) {
+        document.querySelector('.subtitle').textContent = 'Мы вместе! 🎉';
+        ['days','hours','minutes','seconds'].forEach(id => {
+          document.getElementById(id).textContent = '00';
+        });
+        return;
+      }
+
+      const d = Math.floor(distance / 86400000);
+      const h = Math.floor((distance % 86400000) / 3600000);
+      const m = Math.floor((distance % 3600000) / 60000);
+      const s = Math.floor((distance % 60000) / 1000);
+
+      document.getElementById('days').textContent    = String(d).padStart(2, '0');
+      document.getElementById('hours').textContent   = String(h).padStart(2, '0');
+      document.getElementById('minutes').textContent = String(m).padStart(2, '0');
+
+      const secEl = document.getElementById('seconds');
+      secEl.textContent = String(s).padStart(2, '0');
+      if (s !== prevSec) {
+        secEl.classList.remove('tick');
+        void secEl.offsetWidth; // restart animation
+        secEl.classList.add('tick');
+        prevSec = s;
+      }
+    }
+    setInterval(updateTimer, 1000);
+    updateTimer();
+
+    // --- Карусель посланий ---
+    let msgIndex = 0;
+    const msgEl  = document.getElementById('msgText');
+    const dotsEl = document.getElementById('msgDots');
+
+    // Точки
+    messages.forEach((_, i) => {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.onclick = () => switchMessage(i);
+      dotsEl.appendChild(dot);
+    });
+
+    function switchMessage(i) {
+      if (i === msgIndex) return;
+      msgEl.classList.add('fade-out');
+      setTimeout(() => {
+        msgIndex = i;
+        msgEl.textContent = messages[i];
+        msgEl.classList.remove('fade-out');
+        document.querySelectorAll('.dot').forEach((d, idx) => {
+          d.classList.toggle('active', idx === i);
+        });
+      }, 400);
+    }
+
+    // Автопереключение каждые 5 секунд
+    setInterval(() => {
+      const next = (msgIndex + 1) % messages.length;
+      switchMessage(next);
+    }, 5000);
+
+    // --- Тайные послания ---
+    function revealSecret(index) {
+      const box = document.getElementById('secretBox');
+      const btns = document.querySelectorAll('.secret-btn');
+
+      box.classList.remove('show');
+      setTimeout(() => {
+        box.textContent = secrets[index];
+        box.classList.add('show');
+      }, 300);
+
+      btns.forEach((b, i) => {
+        b.classList.toggle('unlocked', i === index);
+      });
+    }
+
+    // --- Модальное окно ---
+    function showModal() {
+      document.getElementById('modal').classList.add('show');
+    }
+    function closeModal(e, force) {
+      if (force || e.target.classList.contains('modal-overlay')) {
+        document.getElementById('modal').classList.remove('show');
+      }
+    }
+  </script>
+</body>
+</html>
